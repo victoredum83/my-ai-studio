@@ -1,29 +1,24 @@
-// Track selected mode ('image' or 'video')
 let currentMode = 'image';
 let generatedMediaUrl = null;
 
-// DOM Elements
 const modeButtons = document.querySelectorAll('.mode-btn');
 const promptInput = document.getElementById('prompt');
 const generateBtn = document.getElementById('generate-btn');
 const resultContainer = document.getElementById('result-container');
 const downloadBtn = document.getElementById('download-btn');
 
-// Handle Mode Toggle (IMAGE vs VIDEO)
 modeButtons.forEach(button => {
     button.addEventListener('click', () => {
         modeButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
         currentMode = button.getAttribute('data-mode');
         
-        // Update placeholder text dynamically based on mode
         if (!generatedMediaUrl) {
             resultContainer.innerHTML = `<span>Generated ${currentMode} result appears here</span>`;
         }
     });
 });
 
-// Handle Generate Button Click
 generateBtn.addEventListener('click', async () => {
     const promptText = promptInput.value.trim();
 
@@ -32,14 +27,12 @@ generateBtn.addEventListener('click', async () => {
         return;
     }
 
-    // 1. Set UI to Loading State
     generateBtn.disabled = true;
     generateBtn.textContent = 'GENERATING...';
-    resultContainer.innerHTML = `<span>AI is crafting your ${currentMode}... Please wait. (Videos can take up to a minute)</span>`;
+    resultContainer.innerHTML = `<span>AI is crafting your ${currentMode}... Please wait.</span>`;
     downloadBtn.classList.add('hidden');
 
     try {
-        // Send request to your live server.js backend
         const response = await fetch('/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -54,7 +47,6 @@ generateBtn.addEventListener('click', async () => {
 
         generatedMediaUrl = data.url;
 
-        // Render the result based on mode
         if (currentMode === 'image') {
             resultContainer.innerHTML = `<img src="${generatedMediaUrl}" alt="Generated AI Image">`;
         } else {
@@ -65,20 +57,17 @@ generateBtn.addEventListener('click', async () => {
                 </video>`;
         }
 
-        // Show download button once media is rendered
         downloadBtn.classList.remove('hidden');
 
     } catch (error) {
         console.error('Generation failed:', error);
-        resultContainer.innerHTML = `<span style="color: #f87171;">Failed to generate. Please try again.</span>`;
+        resultContainer.innerHTML = `<span style="color: #f87171;">Error: ${error.message}</span>`;
     } finally {
-        // Reset Generate Button
         generateBtn.disabled = false;
         generateBtn.textContent = 'GENERATE';
     }
 });
 
-// Handle Download Button Click
 downloadBtn.addEventListener('click', () => {
     if (!generatedMediaUrl) return;
 
