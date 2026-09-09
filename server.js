@@ -6,27 +6,26 @@ const Replicate = require('replicate');
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('.')); // Serves your index.html automatically
+app.use(express.static('.'));
 
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
 
-// Backend Route for generation requests
 app.post('/api/generate', async (req, res) => {
   try {
     const { prompt, mode } = req.body;
 
     if (mode === 'image') {
-      // Image Generation Model
       const output = await replicate.run("black-forest-labs/flux-schnell", {
         input: { prompt: prompt }
       });
       res.json({ url: output[0] });
 
     } else {
-      // Real AI Video Generation Model (Wan 2.2 Fast)
-      const output = await replicate.run("wan-video/wan-2.2-t2v-fast", {
+      // Create a prediction and explicitly wait for it to finish safely
+      const prediction = await replicate.predictions.create({
+        model: "wan-video/wan-2.2-t2v-fast",
         input: { 
           prompt: prompt,
           go_fast: true,
@@ -34,9 +33,24 @@ app.post('/api/generate', async (req, res) => {
           aspect_ratio: "16:9"
         }
       });
-      
-      // Replicate video models return a direct URL to the mp4 file
-      res.json({ url: output });
+
+      // Poll/wait until the prediction status is completed
+      let result = await replicate.predictions.get(prediction.id);
+      while (result.status !== "succeeded" && result.status !== "failed") {
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+        result = await replicate.predictions.get(prediction.id);
+      }
+
+      if (result.status === "failed") {
+        throw new Error("Video generation failed on Replicate.");
+      }
+
+      let videoUrl = result.output;
+      if (Array.isArray(result.output)) {
+        videoUrl = result.output[0];
+      }
+
+      res.json({ url: videoUrl });
     }
 
   } catch (error) {
