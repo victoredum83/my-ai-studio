@@ -35,42 +35,35 @@ generateBtn.addEventListener('click', async () => {
     // 1. Set UI to Loading State
     generateBtn.disabled = true;
     generateBtn.textContent = 'GENERATING...';
-    resultContainer.innerHTML = `<span>AI is crafting your ${currentMode}... Please wait.</span>`;
+    resultContainer.innerHTML = `<span>AI is crafting your ${currentMode}... Please wait. (Videos can take up to a minute)</span>`;
     downloadBtn.classList.add('hidden');
 
     try {
-        // =========================================================================
-        // 🔌 FUTURE API HOOK-UP POINT
-        // -------------------------------------------------------------------------
-        // When your backend is ready, you will replace this simulated block with 
-        // a fetch() call to your backend server/API route, like this:
-        //
-        // const response = await fetch('/api/generate', {
-        //     method: 'POST',
-        //     headers: { 'Content-Type': 'application/json' },
-        //     body: JSON.stringify({ prompt: promptText, mode: currentMode })
-        // });
-        // const data = await response.json();
-        // generatedMediaUrl = data.url;
-        // =========================================================================
+        // Send request to your live server.js backend
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: promptText, mode: currentMode })
+        });
 
-        // --- SIMULATION FOR NOW (Deletes when backend is connected) ---
-        await new Promise(resolve => setTimeout(resolve, 3000)); // Fake 3-sec delay
-        
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Failed to generate media');
+        }
+
+        generatedMediaUrl = data.url;
+
+        // Render the result based on mode
         if (currentMode === 'image') {
-            // Placeholder image for testing UI layout
-            generatedMediaUrl = 'https://picsum.photos/500/500?random=' + Math.random();
             resultContainer.innerHTML = `<img src="${generatedMediaUrl}" alt="Generated AI Image">`;
         } else {
-            // Placeholder video structure for testing UI layout
-            generatedMediaUrl = 'https://www.w3schools.com/html/mov_bbb.mp4';
             resultContainer.innerHTML = `
                 <video controls autoplay loop>
                     <source src="${generatedMediaUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>`;
         }
-        // -------------------------------------------------------------
 
         // Show download button once media is rendered
         downloadBtn.classList.remove('hidden');
@@ -89,11 +82,9 @@ generateBtn.addEventListener('click', async () => {
 downloadBtn.addEventListener('click', () => {
     if (!generatedMediaUrl) return;
 
-    // Create a temporary link element to trigger the download
     const a = document.createElement('a');
     a.href = generatedMediaUrl;
     a.download = `ai-generated-${currentMode}-${Date.now()}`;
-    // target="_blank" helps prevent CORS download blocks on external placeholder URLs
     a.target = '_blank'; 
     document.body.appendChild(a);
     a.click();
