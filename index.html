@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for a clean tech aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="studio-container">
+        <!-- Header -->
+        <header class="studio-header">
+            <h1>MY AI STUDIO</h1>
+            <p>Create an image or video with text prompts</p>
+        </header>
+
+        <!-- Main Form / Interface -->
+        <main class="studio-card">
+            <!-- Prompt Input -->
+            <div class="input-group">
+                <label for="prompt">Describe what you want</label>
+                <textarea id="prompt" placeholder="A futuristic city in the clouds at sunset, cyberpunk style..."></textarea>
+            </div>
+
+            <!-- Mode Selector (Image vs Video) -->
+            <div class="input-group">
+                <label>Select Media Type</label>
+                <div class="mode-selector">
+                    <button type="button" class="mode-btn active" data-mode="image">IMAGE</button>
+                    <button type="button" class="mode-btn" data-mode="video">VIDEO</button>
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <button id="generate-btn" class="primary-btn">GENERATE</button>
+
+            <!-- Result Section -->
+            <div class="result-section">
+                <div id="result-container" class="result-placeholder">
+                    <span>Generated result appears here</span>
+                </div>
+                
+                <!-- Download Button (Hidden by default) -->
+                <button id="download-btn" class="secondary-btn hidden">DOWNLOAD</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
