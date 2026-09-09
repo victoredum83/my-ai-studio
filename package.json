@@ -1,5 +1,5 @@
 {
-  "name": "my-ai-studio",
+  "name": "ai-media-generator",
   "version": "1.0.0",
   "description": "AI Image and Video Generator",
   "main": "server.js",
