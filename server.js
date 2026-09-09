@@ -18,21 +18,33 @@ app.post('/api/generate', async (req, res) => {
     const { prompt, mode } = req.body;
 
     if (mode === 'image') {
+      // Image Generation Model
       const output = await replicate.run("black-forest-labs/flux-schnell", {
         input: { prompt: prompt }
       });
       res.json({ url: output[0] });
+
     } else {
-      // Video placeholder endpoint (or plug a video model like Luma/Runway here later)
-      res.json({ url: "https://www.w3schools.com/html/mov_bbb.mp4" });
+      // Real AI Video Generation Model (Wan 2.2 Fast)
+      const output = await replicate.run("wan-video/wan-2.2-t2v-fast", {
+        input: { 
+          prompt: prompt,
+          go_fast: true,
+          resolution: "480p",
+          aspect_ratio: "16:9"
+        }
+      });
+      
+      // Replicate video models return a direct URL to the mp4 file
+      res.json({ url: output });
     }
+
   } catch (error) {
     console.error('Error generating AI media:', error);
     res.status(500).json({ error: 'Failed to generate media' });
   }
 });
 
-// Render dynamically assigns a port, fallback to 3000 locally
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
